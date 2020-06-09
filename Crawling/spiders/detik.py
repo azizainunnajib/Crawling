@@ -2,13 +2,15 @@ import scrapy
 import re
 from datetime import datetime, timedelta
 from Crawling.items import CrawlingItem
+import time
+from random import randrange
 
 class DetikSpider(scrapy.Spider):
     name = 'kompas'
     # allowed_domains = ['indeks.kompas.com']
     url = 'https://indeks.kompas.com/?site=all&date='
-    date_start = '2020-06-06'
-    date_finish = '2020-06-07'
+    date_start = '2013-11-01'
+    date_finish = '2013-11-30'
     day = 0
     dtstart = datetime.strptime(date_start, '%Y-%m-%d')
     dtfinish = datetime.strptime(date_finish, '%Y-%m-%d')
@@ -40,25 +42,23 @@ class DetikSpider(scrapy.Spider):
             # # Buat URL untuk scrapping halaman selanjutnya
             # next_page_url = response.urljoin(self.start_urls[0] + 'all/' + str(int(current_page) + 1) + '?date=' + self.date)
             self.init_idx = self.init_idx + 1
-            print('ini adalah print index' + str(self.init_idx))
             next_page_url = self.url + self.date_start + '&page=' + str(self.init_idx)
-            print('ini adalah print index' + next_page_url)
             yield scrapy.Request(next_page_url, callback=self.parse)
         
         # Jika tidak ada link berita, maka artinya halaman kosong dan proses crawling selesai
         else:
             # return
-            print('ini ada di else if')
             if ((self.dtstart + timedelta(days=self.day)).date() < self.dtfinish.date()):
-                print('ini ada di while')
                 self.day = self.day + 1
                 self.dtsstart = self.dtstart + timedelta(days=self.day)
-                print('ok')
                 self.date_start = self.dtsstart.strftime('%Y-%m-%d')
                 # print('ok1' + next_day)
                 start_nextDay = self.url + self.date_start
                 self.init_idx = 1
                 # print('ok2' + start_nextDay)
+                # rnd = randrange(1, 120)
+                print('waiting ' + str(120) + ' second to continue')
+                time.sleep(120)
                 print('ini adalah print start next day' + start_nextDay)
                 yield scrapy.Request(start_nextDay, callback=self.parse)
     
